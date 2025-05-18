@@ -1,6 +1,6 @@
-﻿using Tools.DynamicsCRM.Configuration;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tools.DynamicsCRM.Configuration;
 
 namespace Tools.DynamicsCRM
 {
