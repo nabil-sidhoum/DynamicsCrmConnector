@@ -42,14 +42,8 @@ namespace Tools.DynamicsCRM
 
         public DynamicsCrmClient(HttpClient client, DynamicsCrmAuthentication authentication, DynamicsCrmConfig config)
         {
-            if (client is null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            if (config is null)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
+            ArgumentNullException.ThrowIfNull(client);
+            ArgumentNullException.ThrowIfNull(config);
 
             _authorization = authentication;
 
@@ -64,7 +58,7 @@ namespace Tools.DynamicsCRM
 
         public async Task<Dictionary<string, object>> RetrieveAsync(string entitysetname, Guid entityid, string[] columnset = null)
         {
-            Dictionary<string, object> entity = new();
+            Dictionary<string, object> entity = [];
             string resource = $"{entitysetname}({entityid})";
 
             string query = string.Empty;
@@ -101,7 +95,7 @@ namespace Tools.DynamicsCRM
 
         public async Task<IEnumerable<Dictionary<string, object>>> RetrieveMultipleAsync(string resourceandquery)
         {
-            List<Dictionary<string, object>> data = new();
+            List<Dictionary<string, object>> data = [];
             string query = Path.Combine(ApiCommonPath, resourceandquery);
 
             while (!string.IsNullOrWhiteSpace(query))
@@ -243,7 +237,7 @@ namespace Tools.DynamicsCRM
 
         public async Task<Dictionary<int, string>> GetOptionSetValueAsync(string entitylogicalname, string optionsetlogicalname)
         {
-            Dictionary<int, string> optionsets = new();
+            Dictionary<int, string> optionsets = [];
             string resource = $"EntityDefinitions(LogicalName='{entitylogicalname}')";
 
             string query = $"/Attributes(LogicalName='{optionsetlogicalname}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)";
@@ -300,7 +294,7 @@ namespace Tools.DynamicsCRM
 
         private static JObject GetMergeContactBody(Guid targetid, Guid subordinateid, bool performparentingchecks = false)
         {
-            JObject jresult = new();
+            JObject jresult = [];
 
             JObject jtarget = new()
             {

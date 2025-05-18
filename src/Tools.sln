@@ -5,6 +5,10 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.DynamicsCRM", "Tools.DynamicsCRM\Tools.DynamicsCRM.csproj", "{139E9130-E666-AAFF-FE26-0BF28A9CC46A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.DynamicsCRM.Test", "Tools.DynamicsCRM.Test\Tools.DynamicsCRM.Test.csproj", "{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{139E9130-E666-AAFF-FE26-0BF28A9CC46A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{139E9130-E666-AAFF-FE26-0BF28A9CC46A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{139E9130-E666-AAFF-FE26-0BF28A9CC46A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C6DFB32E-FBEF-433C-BFFF-65E18A5255DA}
