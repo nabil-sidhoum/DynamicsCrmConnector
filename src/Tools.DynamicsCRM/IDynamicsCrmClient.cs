@@ -32,5 +32,7 @@ namespace Tools.DynamicsCRM
         Task<bool> AssociateAsync(string entitysetname, Guid entityid, string relationshipname, string relatedentitysetname, Guid relatedentityid);
 
         Task<bool> DisassociateAsync(string entitysetname, Guid entityid, string relationshipname, Guid relatedentityid);
+
+        Task<IEnumerable<Dictionary<string, object>>> SendFetchXmlAsync(string entitysetname, string fetchXml, int pagesize = 5000);
     }
 }

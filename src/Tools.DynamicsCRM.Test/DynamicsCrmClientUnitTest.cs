@@ -91,7 +91,7 @@ namespace Tools.DynamicsCRM.Test
             Assert.AreEqual(entitytocreate[entitytoretrievefieldname[1]], int.Parse(retrievedfields[entitytoretrievefieldname[1]].ToString()));
             Assert.IsTrue(string.IsNullOrWhiteSpace(retrievedfields[entitytoretrievefieldname[2]].ToString()));
             Assert.IsTrue(string.IsNullOrWhiteSpace(retrievedfields[entitytoretrievefieldname[3]].ToString()));
-             }
+        }
 
         [TestMethod]
         public void TestOptionSetRetrieveEntity()

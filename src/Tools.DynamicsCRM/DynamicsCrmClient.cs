@@ -8,6 +8,8 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Xml.Linq;
 using Tools.DynamicsCRM.Configuration;
 using Tools.DynamicsCRM.Exceptions;
 
@@ -19,6 +21,9 @@ namespace Tools.DynamicsCRM
         private const string RETRIEVE_MULTIPLE_VALUE_KEY = "value";
         private const string CREATE_ENTITY_ID_KEY = "OData-EntityId";
 
+        private const string FETCHXML_VALUE_KEY = "value";
+        private const string FETCHXML_MORERECORDS_KEY = "@Microsoft.Dynamics.CRM.morerecords";
+        private const string FETCHXML_PAGINGCOOKIE_KEY = "@Microsoft.Dynamics.CRM.fetchxmlpagingcookie";
 
         public readonly HttpClient _client;
         private readonly DynamicsCrmAuthentication _authorization;
@@ -368,6 +373,67 @@ namespace Tools.DynamicsCRM
             }
         }
 
+        public async Task<IEnumerable<Dictionary<string, object>>> SendFetchXmlAsync(string entitysetname, string fetchXml, int pagesize = 5000)
+        {
+            List<Dictionary<string, object>> data = new();
 
+            XElement fetchNode = XElement.Parse(fetchXml);
+
+            int page = 1;
+            fetchNode.SetAttributeValue("page", page);
+            fetchNode.SetAttributeValue("count", pagesize);
+
+            string query = Path.Combine(ApiCommonPath, $"{entitysetname}?fetchXml={HttpUtility.UrlEncode(fetchNode.ToString())}");
+
+            while (!string.IsNullOrWhiteSpace(query))
+            {
+                HttpRequestMessage request = new(HttpMethod.Get, query) { };
+                request.Headers.Add("Prefer", "odata.include-annotations=" + "\"Microsoft.Dynamics.CRM.fetchxmlpagingcookie," + "Microsoft.Dynamics.CRM.morerecords\"");
+
+                HttpResponseMessage response = await SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                        if (body.ContainsKey(FETCHXML_MORERECORDS_KEY))
+                        {
+                            bool morerecords = body[FETCHXML_MORERECORDS_KEY].Value<bool>();
+                            if (morerecords)
+                            {
+                                string pagingcookie = body[FETCHXML_PAGINGCOOKIE_KEY].Value<string>();
+                                XElement cookieElement = XElement.Parse(pagingcookie);
+                                XAttribute pagingcookieAttribute = cookieElement.Attribute("pagingcookie");
+                                pagingcookie = HttpUtility.UrlDecode(HttpUtility.UrlDecode(pagingcookieAttribute.Value));
+
+                                fetchNode.SetAttributeValue("paging-cookie", pagingcookie);
+                                fetchNode.SetAttributeValue("page", ++page);
+                                query = Path.Combine(ApiCommonPath, $"{entitysetname}?fetchXml={HttpUtility.UrlEncode(fetchNode.ToString())}");
+                            }
+                            else
+                                query = string.Empty;
+                        }
+                        else
+                            query = string.Empty;
+
+                        foreach (var entity in body[FETCHXML_VALUE_KEY])
+                            data.Add(entity.ToObject<Dictionary<string, object>>());
+                    }
+                    catch (Exception e)
+                    {
+                        throw new CrmParseResponseException(e.Message);
+                    }
+                }
+                else
+                {
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                        throw new CrmTooManyRequestException();
+                    throw new CrmHttpResponseException(response.Content);
+                }
+            }
+
+            return data;
+        }
     }
 }
