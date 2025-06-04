@@ -1,0 +1,13 @@
+{
+  "Namespace": "Tools.DynamicsCRM.Extensions",
+  "ResultFolder": "",
+  "IncludeOptionSets": true,
+  "Entitites": [
+    "account",
+    "activitymimeattachment",
+    "contact",   
+    "opportunity",
+    "systemuser",
+    "transactioncurrency",
+  ]
+}

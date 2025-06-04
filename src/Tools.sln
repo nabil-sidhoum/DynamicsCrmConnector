@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.DynamicsCRM.Test", "Tools.DynamicsCRM.Test\Tools.DynamicsCRM.Test.csproj", "{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.DynamicsCRM.Extensions", "Tools.DynamicsCRM.Extensions\Tools.DynamicsCRM.Extensions.csproj", "{8A109A5F-E360-4859-9322-D14971C0511A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5E8F9BB-2EDC-42D6-A2CF-6F63301CC41A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A109A5F-E360-4859-9322-D14971C0511A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A109A5F-E360-4859-9322-D14971C0511A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A109A5F-E360-4859-9322-D14971C0511A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A109A5F-E360-4859-9322-D14971C0511A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
