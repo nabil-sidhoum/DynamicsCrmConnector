@@ -18,12 +18,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Tools.DynamicsCRM" Version="1.0.0" />
+		<Folder Include="GeneratedEntities\" />
+		<Folder Include="GeneratedOptionSets\" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="GeneratedEntities\" />
-		<Folder Include="GeneratedOptionSets\" />
+	  <ProjectReference Include="..\Tools.DynamicsCRM\Tools.DynamicsCRM.csproj" />
 	</ItemGroup>
 
 </Project>
