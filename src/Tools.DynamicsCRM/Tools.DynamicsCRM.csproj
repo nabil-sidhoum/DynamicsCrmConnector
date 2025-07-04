@@ -12,4 +12,17 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<PackageId>DynamicsCrmConnector</PackageId>
+		<Authors>Nabil Sidhoum</Authors>
+		<Company>Nabil Sidhoum</Company>
+		<Description>Connecteur léger pour Microsoft Dynamics CRM via Web API</Description>
+		<PackageTags>CRM;Dynamics;Connector;API;Microsoft</PackageTags>
+		<RepositoryUrl>https://github.com/nabil-sidhoum/DynamicsCrmConnector</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/nabil-sidhoum/DynamicsCrmConnector</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
 </Project>
