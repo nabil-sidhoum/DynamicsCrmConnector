@@ -20,8 +20,8 @@ jobs:
 
       - name: Restore & Build
         run: |
-          dotnet restore src/tools.sln
-          dotnet build src/tools.sln --configuration Release --no-restore
+          dotnet restore src/Tools.sln
+          dotnet build src/Tools.sln --configuration Release --no-restore
 
       - name: Pack Tools.DynamicsCRM
         run: dotnet pack src/Tools.DynamicsCRM/Tools.DynamicsCRM.csproj --configuration Release --no-build --output ./nupkg
