@@ -1,136 +1,166 @@
-# DynamicsCrmConnector pour .Net Core
 
-***DynamicsCrmConnector*** est un connecteur HTTP asynchrone conçu pour les applications .NET Core, permettant de se connecter à l'API Web de Microsoft Dynamics CRM de votre organisation.
- 
-En résumé, Microsoft Dynamics CRM est une application évolutive de gestion de la relation client qui exploite l'API Web basée sur le protocole OData (Open Data Protocol). Cette API permet d'effectuer les opérations classiques d'accès aux données, telles que la création, la mise à jour, la récupération et la suppression, depuis une application externe à Microsoft Dynamics CRM.
+# 🚀 DynamicsCrmConnector pour .NET Core
 
-Parmi toutes les options de [connexion à Dynamics CRM](https://learn.microsoft.com/fr-fr/power-apps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect), ce connecteur n'utilise qu'une authentification basée sur le ClientId et la clé secrète client. Cette méthode d'authentification permet de créer un utilisateur d'application dont les rôles peuvent être gérés comme pour tout autre utilisateur, bien qu'il n'ait pas accès à l'interface utilisateur. L'utilisateur disposera d'une clé secrète client avec une date d'expiration, ce qui garantit une authentification sécurisée dans le temps
- 
-Il suffit d'ajouter cette section dans votre fichier ***appsettings.json*** en y renseignant les informations de votre organisation.
- 
+**DynamicsCrmConnector** est un connecteur HTTP asynchrone conçu pour les applications .NET Core, permettant de communiquer facilement avec l'API Web de Microsoft Dynamics CRM.
+
+---
+
+## 📚 Sommaire
+
+- [Présentation](#-présentation)
+- [Configuration](#-configuration)
+- [Injection de dépendance](#-injection-de-dépendance)
+- [📦 Packages NuGet](#-packages-nuget)
+- [💡 Cas d’usage](#-cas-dusage)
+- [⚠️ Remarques sur les entités](#️-remarques-sur-les-entités)
+
+---
+
+## 🧩 Présentation
+
+Microsoft Dynamics CRM est une solution de gestion de la relation client (CRM) qui expose une API Web RESTful basée sur OData. Ce connecteur permet d'interagir avec cette API pour effectuer des opérations courantes : création, lecture, mise à jour et suppression.
+
+Le connecteur utilise une **authentification basée sur un `ClientId` et une clé secrète (`SecretId`)**. Cela permet une authentification sécurisée via un utilisateur applicatif, sans nécessiter d'interaction avec l'interface utilisateur.
+
+---
+
+## ⚙️ Configuration
+
+Ajoutez la configuration suivante dans votre fichier `appsettings.json` :
+
 ```json
-  "DynamicsCRM": {
-    "BaseUrl": "L'url de votre organisation crm",
-    "WebApiPath": "api/data",
-    "Version": "v9.2",
-    "Authentication": {
-      "TenantId": "votre ID de locataire",
-      "ClientId": "votre ID client",
-      "SecretId": "votre clé secrète"
-    }
+"DynamicsCRM": {
+  "BaseUrl": "https://votre-org.crm.dynamics.com/",
+  "WebApiPath": "api/data",
+  "Version": "v9.2",
+  "Authentication": {
+    "TenantId": "votre-ID-locataire",
+    "ClientId": "votre-ID-client",
+    "SecretId": "votre-clé-secrète"
   }
-```
- 
-Enfin, il suffit d'enregistrer le connecteur comme service dans ***IServiceCollection***.La méthode d'extension ***AddDynamicsCRM*** requiert comme paramètre toutes les propriétés de configuration d'application ***IConfiguration*** pour obtenir toutes les informations de l'organisation.
- 
-```cs
-public IConfiguration Configuration { get; }
- 
-public void ConfigureServices(IServiceCollection services)
-{
-  services.AddDynamicsCRM(Configuration);
 }
 ```
-Une fois la configuration précédente effectuée, il suffit d'une instance de ***IDynamicsCrmClient*** pour exécuter les opérations d'accès aux données classiques.
 
-La structure des données de Microsoft Dynamics CRM peut être complexe. Grâce à des outils tels que [***Early Bound Generator for CRM Web API***](https://www.xrmtoolbox.com/plugins/crm.webApi.earlyBoundGenerator/), il est possible de générer automatiquement les entités présentes dans le CRM sous forme de classes. En utilisant le projet d'extension, vous pouvez exploiter ces classes auto-générées (ou créer les vôtres si vous le souhaitez) pour simplifier les opérations d'accès aux données classiques.
+---
 
-> [!WARNING]  
-> Attention : certaines entités (par exemple : e-mail, activité) ainsi que les champs multi-entités peuvent ne pas être générés de manière optimale. Cependant, vous pouvez créer vos propres classes si nécessaire.
+## 🧪 Injection de dépendance
 
-## Cas d'usage
-### Opération de Création
-*Ajouter une nouvelle une donnée de la base de données CRM.*
+Enregistrez le connecteur comme service dans `IServiceCollection` :
 
-* Sans l'extension
+```csharp
+public IConfiguration Configuration { get; }
 
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Dictionary<string, object> accounttocreate = new()
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddDynamicsCRM(Configuration);
+}
+```
+
+Une fois cela fait, vous pouvez injecter `IDynamicsCrmClient` dans vos classes.
+
+---
+
+## 📦 Packages NuGet
+
+| 📁 Package | 🧾 Version | 📥 Installation |
+|------------|------------|------------------|
+| `Tools.DynamicsCRM` | [![NuGet](https://img.shields.io/nuget/v/Tools.DynamicsCRM.svg)](https://www.nuget.org/packages/Tools.DynamicsCRM) | `dotnet add package Tools.DynamicsCRM` |
+| `Tools.DynamicsCRM.Extensions` | [![NuGet](https://img.shields.io/nuget/v/Tools.DynamicsCRM.Extensions.svg)](https://www.nuget.org/packages/Tools.DynamicsCRM.Extensions) | `dotnet add package Tools.DynamicsCRM.Extensions` |
+
+---
+
+## 💡 Cas d’usage
+
+### 🔧 Création
+
+**Sans l'extension** :
+
+```csharp
+Dictionary<string, object> account = new()
 {
     { "name", "NewAccountName" }
 };
-Guid accountid = await _crmclient.CreateAsync("accounts", accounttocreate);
+Guid id = await _crmclient.CreateAsync("accounts", account);
 ```
- 
-* Avec l'extension
 
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Account accounttocreate = new()
+**Avec l'extension** :
+
+```csharp
+Account account = new()
 {
     Name = "NewAccountName"
 };
-Guid accountid = await _crmclient.Create<Account>(accounttocreate);
+Guid id = await _crmclient.Create<Account>(account);
 ```
-### Opération de Mise à jour
 
-*Modifier une donnée existante de la base de données CRM via son identifiant.*
+---
 
-* Sans l'extension
+### 📝 Mise à jour
 
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant d'un enregistrement de type Compte";
-Dictionary<string, object> accounttoupdate = new()
+**Sans l'extension** :
+
+```csharp
+Guid id = new("...");
+Dictionary<string, object> update = new()
 {
     { "name", "UpdatedName" }
 };
-bool success = await _crmclient.UpdateAsync("accounts", accountid, accounttoupdate);
+await _crmclient.UpdateAsync("accounts", id, update);
 ```
 
-* Avec l'extension
+**Avec l'extension** :
 
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant de l'enregistrement de type Compte à mettre à jour";
-Account accounttoupdate = new()
+```csharp
+Account update = new()
 {
-    AccountId = accountid,
+    AccountId = id,
     Name = "UpdatedName"
 };
-bool success = await _crmclient.Update<Account>(accounttoupdate);
+await _crmclient.Update<Account>(update);
 ```
 
-### Opération de Suppression
-*Supprimer une donnée de la base de données CRM via son identifiant.*
-* Sans l'extension
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant d'un enregistrement de type Compte"; 
-bool success = await _crmclient.DeleteAsync("accounts", accountid);
-``` 
-* Avec l'extension
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant d'un enregistrement de type Compte";
-bool success = await _crmclient.Delete<Account>(accountid);
+---
+
+### ❌ Suppression
+
+**Sans l'extension** :
+
+```csharp
+Guid id = new("...");
+await _crmclient.DeleteAsync("accounts", id);
 ```
 
-## Opération de lecture
-*Récupérer et lire les données existantes de la base de données CRM.*
+**Avec l'extension** :
 
-1- Récupération simple via son identifiant
-* Sans l'extension
- ```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant d'un enregistrement de type Compte";
-string[] accountfields =
-[
-	"accountid",
-	"name"
-];
-Dictionary<string,object> accountdata = await _crmclient.RetrieveAsync("accounts", accountid, accountfields);
-```
-* Avec l'extension
-```cs
-private readonly IDynamicsCrmClient _crmclient;
-Guid accountid = "Identifiant d'un enregistrement de type Compte";
-string[] accountfields =
-[
-	Account.Fields.AccountId,
-	Account.Fields.Name,
-];
-Account data = await _crmclient.Retrieve<Account>(accountid, accountfields);
+```csharp
+Guid id = new("...");
+await _crmclient.Delete<Account>(id);
 ```
 
+---
+
+### 📖 Lecture
+
+**Sans l'extension** :
+
+```csharp
+Guid id = new("...");
+string[] fields = [ "accountid", "name" ];
+Dictionary<string, object> data = await _crmclient.RetrieveAsync("accounts", id, fields);
+```
+
+**Avec l'extension** :
+
+```csharp
+Guid id = new("...");
+string[] fields = [ Account.Fields.AccountId, Account.Fields.Name ];
+Account data = await _crmclient.Retrieve<Account>(id, fields);
+```
+
+---
+
+## ⚠️ Remarques sur les entités
+
+La structure des données de Dynamics CRM peut être complexe. Pour vous faciliter la vie, vous pouvez utiliser [Early Bound Generator for CRM Web API](https://www.xrmtoolbox.com/plugins/crm.webApi.earlyBoundGenerator/) afin de générer automatiquement les classes d'entités.
+
+> ⚠️ Certaines entités comme `email`, `activity`, ou les champs multi-entités peuvent être générées de manière incorrecte. N'hésitez pas à **créer vos propres classes** si nécessaire.
