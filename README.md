@@ -35,6 +35,9 @@ Une fois la configuration précédente effectuée, il suffit d'une instance de *
 
 La structure des données de Microsoft Dynamics CRM peut être complexe. Grâce à des outils tels que [***Early Bound Generator for CRM Web API***](https://www.xrmtoolbox.com/plugins/crm.webApi.earlyBoundGenerator/), il est possible de générer automatiquement les entités présentes dans le CRM sous forme de classes. En utilisant le projet d'extension, vous pouvez exploiter ces classes auto-générées (ou créer les vôtres si vous le souhaitez) pour simplifier les opérations d'accès aux données classiques.
 
+> [!WARNING]  
+> Attention : certaines entités (par exemple : e-mail, activité) ainsi que les champs multi-entités peuvent ne pas être générés de manière optimale. Cependant, vous pouvez créer vos propres classes si nécessaire.
+
 ## Cas d'usage
 ### Opération de Création
 *Ajouter une nouvelle une donnée de la base de données CRM.*
