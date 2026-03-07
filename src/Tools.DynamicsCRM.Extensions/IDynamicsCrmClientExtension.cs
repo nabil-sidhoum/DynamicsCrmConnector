@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Tools.DynamicsCRM.Extensions
 {
@@ -23,7 +23,7 @@ namespace Tools.DynamicsCRM.Extensions
 
         public static async Task<IEnumerable<T>> RetrieveMultiple<T>(this IDynamicsCrmClient crmclient, string query) where T : Entity, new()
         {
-            List<T> entities = new();
+            List<T> entities = [];
             string entitysetname = new T().EntitySetName;
             string resourceandpath = $"{entitysetname}?{query}";
             IEnumerable<Dictionary<string, object>> result = await crmclient.RetrieveMultipleAsync(resourceandpath);
@@ -76,7 +76,7 @@ namespace Tools.DynamicsCRM.Extensions
 
         public static async Task<IEnumerable<T>> SendFetchXml<T>(this IDynamicsCrmClient crmclient, string fetchxml, int pagesize = 5000) where T : Entity, new()
         {
-            List<T> entities = new();
+            List<T> entities = [];
             string entitysetname = new T().EntitySetName;
             IEnumerable<Dictionary<string, object>> result = await crmclient.SendFetchXmlAsync(entitysetname, fetchxml, pagesize);
             foreach (var item in result)

@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Tools.DynamicsCRM.Test
 {
@@ -16,14 +17,14 @@ namespace Tools.DynamicsCRM.Test
         private static IDynamicsCrmClient _crmconnector;
 
         [AssemblyInitialize]
-        public static void InitAssembly(TestContext context)
+        public static void InitAssembly(TestContext _)
         {
             IConfiguration config = new ConfigurationBuilder()
                                         .AddJsonFile("appsettings.json", true, true)
                                         .Build();
 
             var services = new ServiceCollection();
-            services.AddScoped<IConfiguration>(_ => config);
+            services.AddScoped(_ => config);
 
             services.AddDynamicsCRM(config);
 
@@ -88,7 +89,7 @@ namespace Tools.DynamicsCRM.Test
                                                                       .GetResult();
 
             Assert.AreEqual(entitytocreate[entitytoretrievefieldname[0]], retrievedfields[entitytoretrievefieldname[0]].ToString());
-            Assert.AreEqual(entitytocreate[entitytoretrievefieldname[1]], int.Parse(retrievedfields[entitytoretrievefieldname[1]].ToString()));
+            Assert.AreEqual(entitytocreate[entitytoretrievefieldname[1]], int.Parse(retrievedfields[entitytoretrievefieldname[1]].ToString(), CultureInfo.InvariantCulture));
             Assert.IsTrue(string.IsNullOrWhiteSpace(retrievedfields[entitytoretrievefieldname[2]].ToString()));
             Assert.IsTrue(string.IsNullOrWhiteSpace(retrievedfields[entitytoretrievefieldname[3]].ToString()));
         }

@@ -32,17 +32,18 @@ namespace Tools.DynamicsCRM.Exceptions
 
     public class CrmAuthenticationResponseException : Exception
     {
+        private static readonly JsonSerializerOptions _options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
         public CrmAuthenticationResponseException(HttpContent content) : base(ExtractMessageFromContent(content))
         { }
 
         private static string ExtractMessageFromContent(HttpContent content)
         {
             string jsonContent = content.ReadAsStringAsync().Result;
-            JsonSerializerOptions options = new()
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            CrmAuthenticationResponseExceptionModel error = JsonSerializer.Deserialize<CrmAuthenticationResponseExceptionModel>(jsonContent, options);
+            CrmAuthenticationResponseExceptionModel error = JsonSerializer.Deserialize<CrmAuthenticationResponseExceptionModel>(jsonContent, _options);
             return error.ErrorDescription;
         }
     }

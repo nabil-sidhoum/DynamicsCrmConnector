@@ -10,8 +10,13 @@ namespace Tools.DynamicsCRM
 {
     public class DynamicsCrmAuthentication
     {
-        private const string AUTHORITYURL = "https://login.windows.net/{tenantid}/oauth2/token";
+        private const string AuthorityUrl = "https://login.windows.net/{tenantid}/oauth2/token";
         private static readonly object _tokenlock = new();
+
+        private static readonly JsonSerializerOptions _options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         private readonly HttpClient _client;
         private readonly DynamicsCrmConfig _config;
@@ -24,7 +29,9 @@ namespace Tools.DynamicsCRM
                 lock (_tokenlock)
                 {
                     if (_token is null || _token.ExpiresOn < DateTime.UtcNow.AddMinutes(15))
+                    {
                         GetNewToken();
+                    }
                 }
                 return _token.AccessToken;
             }
@@ -32,15 +39,9 @@ namespace Tools.DynamicsCRM
 
         public DynamicsCrmAuthentication(HttpClient client, DynamicsCrmConfig config)
         {
-            if (client is null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
+            ArgumentNullException.ThrowIfNull(client);
+            ArgumentNullException.ThrowIfNull(config);
 
-            if (config is null)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
             _client = client;
             _config = config;
         }
@@ -48,27 +49,23 @@ namespace Tools.DynamicsCRM
         private void GetNewToken()
         {
             _client.DefaultRequestHeaders.Accept.Clear();
-            List<KeyValuePair<string, string>> requestData = new()
-            {
+            List<KeyValuePair<string, string>> requestData =
+            [
                 new("grant_type", "client_credentials"),
                 new("client_id", _config.Authentication.ClientId),
                 new("client_secret", _config.Authentication.SecretId),
                 new("resource", _config.BaseUrl)
-            };
+            ];
 
-            FormUrlEncodedContent requestBody = new FormUrlEncodedContent(requestData);
-            var response = _client.PostAsync(AUTHORITYURL.Replace("{tenantid}", _config.Authentication.TenantId), requestBody).Result;
+            FormUrlEncodedContent requestBody = new(requestData);
+            var response = _client.PostAsync(AuthorityUrl.Replace("{tenantid}", _config.Authentication.TenantId), requestBody).Result;
 
             if (response.IsSuccessStatusCode)
             {
                 try
                 {
                     var jsonContent = response.Content.ReadAsStringAsync().Result;
-                    JsonSerializerOptions options = new()
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    DynamicsCrmAuthenticationToken token = JsonSerializer.Deserialize<DynamicsCrmAuthenticationToken>(jsonContent, options);
+                    DynamicsCrmAuthenticationToken token = JsonSerializer.Deserialize<DynamicsCrmAuthenticationToken>(jsonContent, _options);
                     token.ExpiresOn = DateTime.UtcNow.AddHours(1);
                     _token = token;
                 }
@@ -80,11 +77,17 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
                     throw new CrmAuthenticationResponseException(response.Content);
+                }
                 else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
                 else
+                {
                     throw new CrmHttpResponseException(response.Content);
+                }
             }
         }
 

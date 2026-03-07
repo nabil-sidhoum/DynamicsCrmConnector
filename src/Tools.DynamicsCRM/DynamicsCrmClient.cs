@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Tools.DynamicsCRM.Configuration;
 using Tools.DynamicsCRM.Exceptions;
 
@@ -17,33 +18,23 @@ namespace Tools.DynamicsCRM
 {
     public sealed class DynamicsCrmClient : IDynamicsCrmClient
     {
-        private const string RETRIEVE_MULTIPLE_NEXTPAGE_KEY = "@odata.nextLink";
-        private const string RETRIEVE_MULTIPLE_VALUE_KEY = "value";
-        private const string CREATE_ENTITY_ID_KEY = "OData-EntityId";
+        private const string RetrieveMultipleNextPageKey = "@odata.nextLink";
+        private const string RetrieveMultipleValueKey = "value";
+        private const string CreateEntityIdKey = "OData-EntityId";
 
-        private const string FETCHXML_VALUE_KEY = "value";
-        private const string FETCHXML_MORERECORDS_KEY = "@Microsoft.Dynamics.CRM.morerecords";
-        private const string FETCHXML_PAGINGCOOKIE_KEY = "@Microsoft.Dynamics.CRM.fetchxmlpagingcookie";
+        private const string FetchXmlValueKey = "value";
+        private const string FetchXmlMoreRecordsKey = "@Microsoft.Dynamics.CRM.morerecords";
+        private const string FetchXmlPagingCookieKey = "@Microsoft.Dynamics.CRM.fetchxmlpagingcookie";
 
-        public readonly HttpClient _client;
         private readonly DynamicsCrmAuthentication _authorization;
 
-        public readonly string BaseUrl;
-        public readonly string WebApiPath;
-        public readonly string Version;
+        public string BaseUrl { get; private set; }
+        public string WebApiPath { get; private set; }
+        public string Version { get; private set; }
 
-        public string ApiCommonPath
-        {
-            get
-            {
-                return Path.Combine(WebApiPath, Version).Replace("\\", "/");
-            }
-        }
+        public string ApiCommonPath => Path.Combine(WebApiPath, Version).Replace("\\", "/");
 
-        public HttpClient Client
-        {
-            get { return _client; }
-        }
+        public HttpClient Client { get; }
 
         public DynamicsCrmClient(HttpClient client, DynamicsCrmAuthentication authentication, DynamicsCrmConfig config)
         {
@@ -55,9 +46,9 @@ namespace Tools.DynamicsCRM
             BaseUrl = config.BaseUrl;
             WebApiPath = config.WebApiPath;
             Version = config.Version;
-            _client = client;
-            _client.BaseAddress = new Uri(BaseUrl);
-            _client.Timeout = new TimeSpan(0, 2, 0);
+            Client = client;
+            Client.BaseAddress = new Uri(BaseUrl);
+            Client.Timeout = new TimeSpan(0, 2, 0);
         }
 
 
@@ -69,7 +60,9 @@ namespace Tools.DynamicsCRM
             string query = string.Empty;
 
             if (columnset != null && columnset.Length > 0)
+            {
                 query = $"?$select={string.Join(",", columnset)}";
+            }
 
             HttpRequestMessage request = new(HttpMethod.Get, Path.Combine(ApiCommonPath, resource + query)) { };
 
@@ -81,7 +74,10 @@ namespace Tools.DynamicsCRM
                 {
                     JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                     foreach (var attr in body)
+                    {
                         entity.Add(attr.Key, attr.Value);
+                    }
+
                     return entity;
                 }
                 catch (Exception e)
@@ -92,7 +88,10 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
 
@@ -114,16 +113,20 @@ namespace Tools.DynamicsCRM
                     try
                     {
                         JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                        if (body.ContainsKey(RETRIEVE_MULTIPLE_NEXTPAGE_KEY))
+                        if (body.ContainsKey(RetrieveMultipleNextPageKey))
                         {
-                            string nextlink = body[RETRIEVE_MULTIPLE_NEXTPAGE_KEY].Value<string>();
+                            string nextlink = body[RetrieveMultipleNextPageKey].Value<string>();
                             query = new Uri(nextlink).PathAndQuery;
                         }
                         else
+                        {
                             query = string.Empty;
+                        }
 
-                        foreach (var entity in body[RETRIEVE_MULTIPLE_VALUE_KEY])
+                        foreach (var entity in body[RetrieveMultipleValueKey])
+                        {
                             data.Add(entity.ToObject<Dictionary<string, object>>());
+                        }
                     }
                     catch (Exception e)
                     {
@@ -133,7 +136,10 @@ namespace Tools.DynamicsCRM
                 else
                 {
                     if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    {
                         throw new CrmTooManyRequestException();
+                    }
+
                     throw new CrmHttpResponseException(response.Content);
                 }
             }
@@ -156,14 +162,17 @@ namespace Tools.DynamicsCRM
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                string recordUri = response.Headers.GetValues(CREATE_ENTITY_ID_KEY).FirstOrDefault();
+                string recordUri = response.Headers.GetValues(CreateEntityIdKey).FirstOrDefault();
                 string entityid = new Uri(recordUri).Segments.LastOrDefault().Replace(resource + "(", "").Replace(")", "");
                 return Guid.Parse(entityid);
             }
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
@@ -183,14 +192,17 @@ namespace Tools.DynamicsCRM
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                string recordUri = response.Headers.GetValues(CREATE_ENTITY_ID_KEY).FirstOrDefault();
+                string recordUri = response.Headers.GetValues(CreateEntityIdKey).FirstOrDefault();
                 string entityid = new Uri(recordUri).Segments.LastOrDefault().Replace(resource + "(", "").Replace(")", "");
                 return Guid.Parse(entityid);
             }
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
@@ -215,7 +227,10 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
@@ -235,7 +250,10 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
@@ -258,7 +276,7 @@ namespace Tools.DynamicsCRM
                     dynamic body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                     foreach (var attr in body.OptionSet.Options)
                     {
-                        int value = int.Parse($"{attr.Value}");
+                        int value = int.Parse($"{attr.Value}", CultureInfo.InvariantCulture);
                         IEnumerable<dynamic> labels = attr.Label.LocalizedLabels;
                         string label = $"{labels.First().Label}";
                         optionsets.Add(value, label);
@@ -321,7 +339,7 @@ namespace Tools.DynamicsCRM
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            return _client.SendAsync(request.ConfigHeaders(_authorization.Token));
+            return Client.SendAsync(request.ConfigHeaders(_authorization.Token));
         }
 
         public async Task<bool> AssociateAsync(string entitysetname, Guid entityid, string relationshipname, string relatedentitysetname, Guid relatedentityid)
@@ -348,7 +366,10 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
@@ -368,14 +389,17 @@ namespace Tools.DynamicsCRM
             else
             {
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
                     throw new CrmTooManyRequestException();
+                }
+
                 throw new CrmHttpResponseException(response.Content);
             }
         }
 
         public async Task<IEnumerable<Dictionary<string, object>>> SendFetchXmlAsync(string entitysetname, string fetchXml, int pagesize = 5000)
         {
-            List<Dictionary<string, object>> data = new();
+            List<Dictionary<string, object>> data = [];
 
             XElement fetchNode = XElement.Parse(fetchXml);
 
@@ -397,12 +421,12 @@ namespace Tools.DynamicsCRM
                     try
                     {
                         JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                        if (body.ContainsKey(FETCHXML_MORERECORDS_KEY))
+                        if (body.ContainsKey(FetchXmlMoreRecordsKey))
                         {
-                            bool morerecords = body[FETCHXML_MORERECORDS_KEY].Value<bool>();
+                            bool morerecords = body[FetchXmlMoreRecordsKey].Value<bool>();
                             if (morerecords)
                             {
-                                string pagingcookie = body[FETCHXML_PAGINGCOOKIE_KEY].Value<string>();
+                                string pagingcookie = body[FetchXmlPagingCookieKey].Value<string>();
                                 XElement cookieElement = XElement.Parse(pagingcookie);
                                 XAttribute pagingcookieAttribute = cookieElement.Attribute("pagingcookie");
                                 pagingcookie = HttpUtility.UrlDecode(HttpUtility.UrlDecode(pagingcookieAttribute.Value));
@@ -412,13 +436,19 @@ namespace Tools.DynamicsCRM
                                 query = Path.Combine(ApiCommonPath, $"{entitysetname}?fetchXml={HttpUtility.UrlEncode(fetchNode.ToString())}");
                             }
                             else
+                            {
                                 query = string.Empty;
+                            }
                         }
                         else
+                        {
                             query = string.Empty;
+                        }
 
-                        foreach (var entity in body[FETCHXML_VALUE_KEY])
+                        foreach (var entity in body[FetchXmlValueKey])
+                        {
                             data.Add(entity.ToObject<Dictionary<string, object>>());
+                        }
                     }
                     catch (Exception e)
                     {
@@ -428,7 +458,10 @@ namespace Tools.DynamicsCRM
                 else
                 {
                     if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    {
                         throw new CrmTooManyRequestException();
+                    }
+
                     throw new CrmHttpResponseException(response.Content);
                 }
             }
