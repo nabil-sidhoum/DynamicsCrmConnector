@@ -20,7 +20,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Tests
-        run: dotnet test src/Tools.DynamicsCRM.Tests/Tools.DynamicsCRM.Tests.csproj -c Release
+        run: dotnet test src/Tools.sln -c Release
 
   # 2. Publication Tools.DynamicsCRM — bloquée si tests KO
   publish-crm:
