@@ -8,15 +8,17 @@ namespace Tools.DynamicsCRM
     {
         public static IServiceCollection AddDynamicsCRM(this IServiceCollection services, IConfiguration configuration)
         {
-            var crmConfig = configuration.GetSection("DynamicsCRM").Get<DynamicsCrmConfig>();
+            DynamicsCrmConfig crmConfig = configuration.GetSection("DynamicsCRM").Get<DynamicsCrmConfig>();
 
             services.AddHttpClient("DynamicCrmAuthenticationHttpClient")
-                    .AddTypedClient<DynamicsCrmAuthentication>(httpclient => new(httpclient, crmConfig));
-
-            DynamicsCrmAuthentication dynamicCrmAuthentication = services.BuildServiceProvider().GetService<DynamicsCrmAuthentication>();
+                    .AddTypedClient<DynamicsCrmAuthentication>(httpClient => new(httpClient, crmConfig));
 
             services.AddHttpClient("DynamicsCRMHttpClient")
-                    .AddTypedClient<IDynamicsCrmClient>(httpclient => new DynamicsCrmClient(httpclient, dynamicCrmAuthentication, crmConfig));
+                    .AddTypedClient<IDynamicsCrmClient>((httpClient, serviceProvider) =>
+                    {
+                        DynamicsCrmAuthentication auth = serviceProvider.GetRequiredService<DynamicsCrmAuthentication>();
+                        return new DynamicsCrmClient(httpClient, auth, crmConfig);
+                    });
 
             return services;
         }
