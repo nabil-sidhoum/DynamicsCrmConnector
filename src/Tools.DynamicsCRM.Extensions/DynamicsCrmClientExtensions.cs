@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Tools.DynamicsCRM.Extensions
 {
-    public static class IDynamicsCrmClientExtension
+    public static class DynamicsCrmClientExtensions
     {
         public static async Task<T> Retrieve<T>(this IDynamicsCrmClient crmclient, Guid entityid, string[] columnset = null) where T : Entity, new()
         {
