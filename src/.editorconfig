@@ -399,3 +399,11 @@ generated_code = true
 [**/GeneratedOptionSets/*.cs]
 generated_code = true
 
+# CA1707 : Interdit les underscores dans les noms de membres — désactivé pour les tests
+# Raison : la convention xUnit "Méthode_Scénario_RésultatAttendu" utilise des underscores
+#          pour structurer le nom des tests. Cette règle ne s'applique pas au code de test.
+# IDE0130 : Namespace ne correspond pas à la structure des dossiers — désactivé pour les tests
+# Raison : le namespace du projet de test peut diverger de l'arborescence physique des dossiers.
+[*.Tests/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.IDE0130.severity = none
