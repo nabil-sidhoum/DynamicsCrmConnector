@@ -1,5 +1,6 @@
 
 # 🚀 DynamicsCrmConnector pour .NET Core
+[![Build & Tests](https://github.com/nabil-sidhoum/DynamicsCrmConnector/actions/workflows/nuget-publish.yml/badge.svg)](https://github.com/nabil-sidhoum/DynamicsCrmConnector/actions/workflows/nuget-publish.yml)
 
 **DynamicsCrmConnector** est un connecteur HTTP asynchrone conçu pour les applications .NET Core, permettant de communiquer facilement avec l'API Web de Microsoft Dynamics CRM.
 
